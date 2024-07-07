@@ -1,6 +1,6 @@
 using System;
 
-namespace StateMachine.Runtime.helpers
+namespace Utilities.StateMachine.helpers
 {
     /// <summary>
     /// Custom exception for state machine-specific errors.

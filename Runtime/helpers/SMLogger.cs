@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace StateMachine.Runtime.helpers
+namespace Utilities.StateMachine.helpers
 {
     /// <summary>
     /// Logger class for the state machine.

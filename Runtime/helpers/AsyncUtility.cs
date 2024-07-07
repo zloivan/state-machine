@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace StateMachine.Runtime.helpers
+namespace Utilities.StateMachine.helpers
 {
     /// <summary>
     /// Utility class for handling asynchronous operations.
