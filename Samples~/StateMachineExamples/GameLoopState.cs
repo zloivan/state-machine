@@ -5,13 +5,19 @@ using Utilities.StateMachine.abstractions;
 
 namespace Utilities.StateMachine.Examples
 {
-    public class BootstrapState : IState<AppState>
+    public class GameLoopState : IState<AppState>
     {
-        public async UniTask EnterAsync(CancellationToken cancellationToken = default)
+        private readonly IStateContext<AppState> _context;
+
+        public GameLoopState(IStateContext<AppState> context)
         {
-            Debug.Log("Entering Bootstrap State");
-            await UniTask.Delay(2000, cancellationToken: cancellationToken);
-            Debug.Log("Bootstrap data loaded");
+            _context = context;
+        }
+
+        public UniTask EnterAsync(CancellationToken cancellationToken = default)
+        {
+            Debug.Log("Entering Game Loop State");
+            return UniTask.CompletedTask;
         }
 
         public UniTask UpdateAsync(CancellationToken cancellationToken = default)
@@ -21,7 +27,7 @@ namespace Utilities.StateMachine.Examples
 
         public UniTask ExitAsync(CancellationToken cancellationToken = default)
         {
-            Debug.Log("Exiting Bootstrap State");
+            Debug.Log("Exiting Game Loop State");
             return UniTask.CompletedTask;
         }
     }

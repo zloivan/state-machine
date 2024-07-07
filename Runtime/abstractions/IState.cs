@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace Utilities.StateMachine.abstractions
+namespace StateMachine.Runtime.abstractions
 {
     public interface IState<TState> where TState : Enum
     {

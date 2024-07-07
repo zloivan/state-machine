@@ -1,0 +1,23 @@
+{
+  "name": "com.zloivan.unity-state-machine",
+  "version": "1.0.0",
+  "displayName": "Unity State Machine",
+  "description": "A flexible and efficient state machine implementation for Unity projects.",
+  "unity": "2019.1",
+  "keywords": [
+    "unity",
+    "state machine",
+    "async"
+  ],
+  "author": {
+    "name": "Ivan Khomichkov",
+    "url": "https://github.com/zloivan"
+  },
+  "samples": [
+    {
+      "displayName": "State Machine Examples",
+      "description": "Contains example implementations and use cases for the state machine.",
+      "path": "Samples~/StateMachineExamples"
+    }
+  ]
+}

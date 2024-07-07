@@ -7,6 +7,19 @@ namespace Utilities.StateMachine.Examples
 {
     public class MainMenuState : IState<AppState>
     {
+        
+        private readonly IStateContext<AppState> _context;
+
+        public MainMenuState(IStateContext<AppState> context)
+        {
+            _context = context;
+        }
+
+        public MainMenuState()
+        {
+            
+        }
+        
         public UniTask EnterAsync(CancellationToken cancellationToken = default)
         {
             Debug.Log("Entering Main Menu State");

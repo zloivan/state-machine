@@ -9,10 +9,10 @@ namespace Utilities.StateMachine.Examples
         private void Start()
         {
             _stateMachine = new StateMachine<AppState>();
+            _stateMachine.AddStateWithContext(AppState.Bootstrap, context => new BootstrapState(context));
 
-            _stateMachine.AddState<BootstrapState>(AppState.Bootstrap);
             _stateMachine.AddState<MainMenuState>(AppState.MainMenu);
-            _stateMachine.AddState<GameLoopState>(AppState.GameLoop);
+            _stateMachine.AddStateWithContext(AppState.GameLoop, context => new GameLoopState(context));
 
             _stateMachine.AddTransition(AppState.Bootstrap, AppState.MainMenu,
                 () => Time.realtimeSinceStartup > 10f); // EXAMPLE OF GUARD, HERE CAN BE ANITHING

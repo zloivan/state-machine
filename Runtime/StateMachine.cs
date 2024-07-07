@@ -1,152 +1,201 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
-using Utilities.StateMachine.abstractions;
+using StateMachine.Runtime.abstractions;
+using StateMachine.Runtime.helpers;
 
-namespace Utilities.StateMachine
+namespace StateMachine.Runtime
 {
-    public class StateMachine<TState> where TState : Enum
+    /// <summary>
+    /// Represents a generic state machine.
+    /// </summary>
+    /// <typeparam name="TState">The type of the state enum.</typeparam>
+    public class StateMachine<TState> : IStateContext<TState> where TState : Enum
     {
         private TState _currentState;
         private readonly Dictionary<TState, IState<TState>> _states = new();
         private readonly Stack<TState> _stateHistory = new();
         private readonly Dictionary<(TState, TState), Func<bool>> _transitionGuards = new();
+        private readonly StateMachineLogger _logger = new();
+        private readonly Dictionary<TState, UniTask> _cachedUpdateTasks = new();
+        private readonly object _lock = new();
 
+        /// <summary>
+        /// Gets the current state of the state machine.
+        /// </summary>
         public TState CurrentState => _currentState;
 
+        /// <summary>
+        /// Event triggered when the state changes.
+        /// </summary>
         public event Action<TState, TState> StateChanged;
 
+        /// <summary>
+        /// Adds a new state to the state machine.
+        /// </summary>
+        /// <typeparam name="TStateImpl">The type of the state implementation.</typeparam>
+        /// <param name="stateKey">The enum key for the state.</param>
         public void AddState<TStateImpl>(TState stateKey) where TStateImpl : IState<TState>, new()
         {
-            if (_states.ContainsKey(stateKey))
-            {
-                Debug.LogWarning($"State {stateKey} already exists in the state machine. Overwriting.");
-            }
-            _states[stateKey] = new TStateImpl();
+            AddState(stateKey, () => new TStateImpl());
         }
 
+        /// <summary>
+        /// Adds a new state to the state machine with a context-aware factory method.
+        /// </summary>
+        /// <typeparam name="TStateImpl">The type of the state implementation.</typeparam>
+        /// <param name="stateKey">The enum key for the state.</param>
+        /// <param name="stateFactory">A factory method to create the state instance.</param>
+        public void AddStateWithContext<TStateImpl>(TState stateKey, Func<IStateContext<TState>, TStateImpl> stateFactory) where TStateImpl : IState<TState>
+        {
+            lock (_lock)
+            {
+                if (_states.ContainsKey(stateKey))
+                {
+                    _logger.LogWarning($"State {stateKey} already exists in the state machine. Overwriting.");
+                }
+                _states[stateKey] = stateFactory(this);
+                _cachedUpdateTasks[stateKey] = UniTask.CompletedTask;
+            }
+        }
+
+        /// <summary>
+        /// Adds a transition guard between two states.
+        /// </summary>
+        /// <param name="from">The source state.</param>
+        /// <param name="to">The destination state.</param>
+        /// <param name="guard">A function that returns true if the transition is allowed.</param>
         public void AddTransition(TState from, TState to, Func<bool> guard)
         {
-            _transitionGuards[(from, to)] = guard;
+            lock (_lock)
+            {
+                _transitionGuards[(from, to)] = guard;
+            }
         }
 
+        /// <summary>
+        /// Sets the initial state of the state machine.
+        /// </summary>
+        /// <param name="initialState">The initial state to set.</param>
         public void SetInitialState(TState initialState)
         {
-            if (SynchronizationContext.Current == null)
-            {
-                SetInitialStateAsync(initialState).GetAwaiter().GetResult();
-            }
-            else
-            {
-                SetInitialStateAsync(initialState).Forget();
-            }
+            AsyncUtility.RunSynchronous(() => SetInitialStateAsync(initialState));
         }
 
-        public async UniTask SetInitialStateAsync(TState initialState, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Sets the initial state of the state machine asynchronously.
+        /// </summary>
+        /// <param name="initialState">The initial state to set.</param>
+        public async UniTask SetInitialStateAsync(TState initialState)
         {
-            try
+            lock (_lock)
             {
                 if (!_states.ContainsKey(initialState))
                 {
-                    throw new ArgumentException($"State {initialState} does not exist in the state machine.");
+                    throw new StateMachineException($"State {initialState} does not exist in the state machine.");
                 }
-                _currentState = initialState;
-                _stateHistory.Clear();
-                await _states[_currentState].EnterAsync(cancellationToken);
-                OnStateChanged(default, _currentState);
             }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error setting initial state: {ex.Message}");
-                throw;
-            }
+
+            _currentState = initialState;
+            _stateHistory.Clear();
+            await _states[_currentState].EnterAsync();
+            OnStateChanged(default, _currentState);
         }
 
+        /// <summary>
+        /// Changes the current state of the state machine.
+        /// </summary>
+        /// <param name="newState">The new state to transition to.</param>
         public void ChangeState(TState newState)
         {
-            if (SynchronizationContext.Current == null)
-            {
-                ChangeStateAsync(newState).GetAwaiter().GetResult();
-            }
-            else
-            {
-                ChangeStateAsync(newState).Forget();
-            }
+            AsyncUtility.RunSynchronous(() => ChangeStateAsync(newState));
         }
 
-        public async UniTask ChangeStateAsync(TState newState, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Changes the current state of the state machine asynchronously.
+        /// </summary>
+        /// <param name="newState">The new state to transition to.</param>
+        public async UniTask ChangeStateAsync(TState newState)
         {
-            try
+            lock (_lock)
             {
                 if (!_states.ContainsKey(newState))
                 {
-                    throw new ArgumentException($"State {newState} does not exist in the state machine.");
+                    throw new StateMachineException($"State {newState} does not exist in the state machine.");
                 }
 
                 if (_transitionGuards.TryGetValue((_currentState, newState), out var guard) && !guard())
                 {
-                    Debug.LogWarning($"Transition from {_currentState} to {newState} is not allowed by the guard.");
+                    _logger.LogWarning($"Transition from {_currentState} to {newState} is not allowed by the guard.");
                     return;
                 }
+            }
 
-                var oldState = _currentState;
-                await _states[_currentState].ExitAsync(cancellationToken);
-                _stateHistory.Push(_currentState);
-                _currentState = newState;
-                await _states[_currentState].EnterAsync(cancellationToken);
-                OnStateChanged(oldState, _currentState);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error changing state: {ex.Message}");
-                // Optionally, revert to the previous state
-                // currentState = stateHistory.Pop();
-                throw;
-            }
+            var oldState = _currentState;
+            await _states[_currentState].ExitAsync();
+            _stateHistory.Push(_currentState);
+            _currentState = newState;
+            await _states[_currentState].EnterAsync();
+            OnStateChanged(oldState, _currentState);
         }
 
+        /// <summary>
+        /// Updates the current state.
+        /// </summary>
         public void Update()
         {
-            if (SynchronizationContext.Current == null)
-            {
-                UpdateAsync().GetAwaiter().GetResult();
-            }
-            else
-            {
-                UpdateAsync().Forget();
-            }
+            AsyncUtility.RunSynchronous(UpdateAsync);
         }
 
-        public async UniTask UpdateAsync(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Updates the current state asynchronously.
+        /// </summary>
+        public async UniTask UpdateAsync()
         {
-            try
+            IState<TState> currentState;
+            lock (_lock)
             {
-                var updateTasks = _states.Values.Select(state => state.UpdateAsync(cancellationToken));
-                await UniTask.WhenAll(updateTasks);
+                currentState = _states[_currentState];
             }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error during state update: {ex.Message}");
-                throw;
-            }
+
+            _cachedUpdateTasks[_currentState] = currentState.UpdateAsync();
+            await _cachedUpdateTasks[_currentState];
         }
 
+        /// <summary>
+        /// Reverts to the previous state.
+        /// </summary>
         public void UndoLastTransition()
         {
-            if (_stateHistory.Count > 0)
+            lock (_lock)
             {
-                ChangeState(_stateHistory.Pop());
+                if (_stateHistory.Count > 0)
+                {
+                    ChangeState(_stateHistory.Pop());
+                }
+                else
+                {
+                    _logger.LogWarning("No previous state to revert to.");
+                }
             }
-            else
+        }
+
+        private void AddState(TState stateKey, Func<IState<TState>> stateFactory)
+        {
+            lock (_lock)
             {
-                Debug.LogWarning("No previous state to revert to.");
+                if (_states.ContainsKey(stateKey))
+                {
+                    _logger.LogWarning($"State {stateKey} already exists in the state machine. Overwriting.");
+                }
+                _states[stateKey] = stateFactory();
+                _cachedUpdateTasks[stateKey] = UniTask.CompletedTask;
             }
         }
 
         private void OnStateChanged(TState oldState, TState newState)
         {
+            _logger.Log($"State changed from {oldState} to {newState}");
             StateChanged?.Invoke(oldState, newState);
         }
     }
