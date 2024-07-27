@@ -1,8 +1,8 @@
 {
-    "name": "StateMachineSystem-Samples",
+    "name": "IKhom-StateMachineSystem-Samples",
     "rootNamespace": "IKhom",
     "references": [
-        "StateMachineSystem",
+        "IKhom-StateMachineSystem",
         "UniTask"
     ],
     "includePlatforms": [],
