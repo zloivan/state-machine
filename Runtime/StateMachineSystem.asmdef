@@ -1,6 +1,6 @@
 {
-    "name": "UnityStateMachine",
-    "rootNamespace": "",
+    "name": "StateMachineSystem",
+    "rootNamespace": "IKhom",
     "references": [
         "UniTask"
     ],

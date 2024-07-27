@@ -1,6 +1,6 @@
 using System;
 
-namespace Utilities.StateMachine.abstractions
+namespace IKhom.StateMachineSystem.Runtime.abstractions
 {
     public interface IStateContext<in TState> where TState : Enum
     {

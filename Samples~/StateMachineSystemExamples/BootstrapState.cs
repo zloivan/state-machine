@@ -1,9 +1,9 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using IKhom.StateMachineSystem.Runtime.abstractions;
 using UnityEngine;
-using Utilities.StateMachine.abstractions;
 
-namespace Utilities.StateMachine.Examples
+namespace IKhom.StateMachineSystem.Samples.StateMachineSystemExamples
 {
     public class BootstrapState : IState<AppState>
     {

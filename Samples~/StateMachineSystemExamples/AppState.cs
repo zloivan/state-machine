@@ -1,4 +1,4 @@
-namespace Utilities.StateMachine.Examples
+namespace IKhom.StateMachineSystem.Samples.StateMachineSystemExamples
 {
     public enum AppState
     {

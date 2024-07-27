@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Utilities.StateMachine.abstractions;
-using Utilities.StateMachine.helpers;
+using IKhom.StateMachineSystem.Runtime.abstractions;
+using IKhom.StateMachineSystem.Runtime.helpers;
 
-namespace Utilities.StateMachine
+namespace IKhom.StateMachineSystem.Runtime
 {
     /// <summary>
     /// Represents a generic state machine.

@@ -1,25 +1,12 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using IKhom.StateMachineSystem.Runtime.abstractions;
 using UnityEngine;
-using Utilities.StateMachine.abstractions;
 
-namespace Utilities.StateMachine.Examples
+namespace IKhom.StateMachineSystem.Samples.StateMachineSystemExamples
 {
     public class MainMenuState : IState<AppState>
     {
-        
-        private readonly IStateContext<AppState> _context;
-
-        public MainMenuState(IStateContext<AppState> context)
-        {
-            _context = context;
-        }
-
-        public MainMenuState()
-        {
-            
-        }
-        
         public UniTask EnterAsync(CancellationToken cancellationToken = default)
         {
             Debug.Log("Entering Main Menu State");

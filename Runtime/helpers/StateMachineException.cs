@@ -1,11 +1,11 @@
 using System;
 
-namespace Utilities.StateMachine.helpers
+namespace IKhom.StateMachineSystem.Runtime.helpers
 {
     /// <summary>
     /// Custom exception for state machine-specific errors.
     /// </summary>
-    public class StateMachineException : Exception
+    internal class StateMachineException : Exception
     {
         public StateMachineException()
         {

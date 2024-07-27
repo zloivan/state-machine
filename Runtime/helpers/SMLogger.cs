@@ -1,11 +1,11 @@
 using UnityEngine;
 
-namespace Utilities.StateMachine.helpers
+namespace IKhom.StateMachineSystem.Runtime.helpers
 {
     /// <summary>
     /// Logger class for the state machine.
     /// </summary>
-    public class StateMachineLogger
+    internal class StateMachineLogger
     {
         public void Log(string message)
         {

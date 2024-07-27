@@ -1,19 +1,12 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using IKhom.StateMachineSystem.Runtime.abstractions;
 using UnityEngine;
-using Utilities.StateMachine.abstractions;
 
-namespace Utilities.StateMachine.Examples
+namespace IKhom.StateMachineSystem.Samples.StateMachineSystemExamples
 {
     public class GameLoopState : IState<AppState>
     {
-        private readonly IStateContext<AppState> _context;
-
-        public GameLoopState(IStateContext<AppState> context)
-        {
-            _context = context;
-        }
-
         public UniTask EnterAsync(CancellationToken cancellationToken = default)
         {
             Debug.Log("Entering Game Loop State");

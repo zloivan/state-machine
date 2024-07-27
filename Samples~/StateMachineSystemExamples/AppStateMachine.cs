@@ -1,6 +1,7 @@
+using IKhom.StateMachineSystem.Runtime;
 using UnityEngine;
 
-namespace Utilities.StateMachine.Examples
+namespace IKhom.StateMachineSystem.Samples.StateMachineSystemExamples
 {
     public class AppStateMachine : MonoBehaviour
     {
@@ -9,10 +10,12 @@ namespace Utilities.StateMachine.Examples
         private void Start()
         {
             _stateMachine = new StateMachine<AppState>();
-            _stateMachine.AddStateWithContext(AppState.Bootstrap, context => new BootstrapState(context));
 
-            _stateMachine.AddState<MainMenuState>(AppState.MainMenu);
-            _stateMachine.AddStateWithContext(AppState.GameLoop, context => new GameLoopState(context));
+            _stateMachine.AddState<MainMenuState>(AppState.MainMenu); // Easy state adding with parameterless constructor
+            
+            // sending context to state to be able to change state from state itself
+            _stateMachine.AddStateWithContext(AppState.Bootstrap, context => new BootstrapState(context)); 
+            _stateMachine.AddStateWithContext(AppState.GameLoop, _ => new GameLoopState());
 
             _stateMachine.AddTransition(AppState.Bootstrap, AppState.MainMenu,
                 () => Time.realtimeSinceStartup > 10f); // EXAMPLE OF GUARD, HERE CAN BE ANITHING

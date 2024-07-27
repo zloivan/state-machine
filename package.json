@@ -9,6 +9,9 @@
     "state machine",
     "async"
   ],
+  "_upm": {
+    "changelog": "- Adjust namespaces and assemblies"
+  },
   "author": {
     "name": "Ivan Khomichkov",
     "url": "https://github.com/zloivan"
