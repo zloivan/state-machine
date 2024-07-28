@@ -19,7 +19,7 @@ A flexible and efficient state machine implementation for Unity projects.
 
 3. Click the "+" button in the top-left corner and select "Add package from git URL".
 
-4. Enter the following URL: `https://github.com/zloivan/StateMashine.git`
+4. Enter the following URL: `https://github.com/zloivan/state-machine.git`
 
 5. Click "Add". Unity will download and install the package.
 
