@@ -1,5 +1,5 @@
 {
-  "name": "com.zloivan.unity-state-machine",
+  "name": "com.zloivan.statemachine",
   "version": "1.0.0",
   "displayName": "IKhom State Machine",
   "description": "A flexible and efficient state machine implementation for Unity projects.",
