@@ -19,7 +19,7 @@ A flexible and efficient state machine implementation for Unity projects.
 
 3. Click the "+" button in the top-left corner and select "Add package from git URL".
 
-4. Enter the following URL: `https://github.com/zloivan/StateMashine.git`
+4. Enter the following URL: `https://github.com/zloivan/state-machine.git`
 
 5. Click "Add". Unity will download and install the package.
 
@@ -30,9 +30,9 @@ Note: This package is distributed as a git repository, so Unity's Package Manage
 The package is organized as follows:
 
 - `Runtime/`: Contains all scripts required for the state machine, including interfaces, classes, and helpers.
-- `Examples/`: Contains example implementations and use cases for the state machine.
+- `Samples/StateMachineSystemExamples`: Contains example implementations and use cases for the state machine.
 
-Note: The `Examples/` folder is optional. After installing the package, you can import the examples by clicking the "Import" button next to "Examples" in the Package Manager.
+Note: The `Samples` folder is optional. After installing the package, you can import the examples by clicking the "Import" button next to "Examples" in the Package Manager.
 
 ## Usage
 
